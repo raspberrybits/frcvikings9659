@@ -36,14 +36,13 @@ public class Shooter extends SubsystemBase {
         shooterTopFeed.set(speed);
     }
 
-    public void extend(){}
+    public void extend(){
 
-    public void retract(){}
+    }
 
     public void stop(){
         shooterTopFeed.stopMotor();
         shooterBottomFeed.stopMotor();
         shooterPrime.stopMotor();
-        retract();
     }
 }
