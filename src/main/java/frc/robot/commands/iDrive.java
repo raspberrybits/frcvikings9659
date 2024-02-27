@@ -34,6 +34,7 @@ public class iDrive extends Command {
   public void execute() {
     SmartDashboard.putNumber("Left Joystick", left);
     SmartDashboard.putNumber("Right Joystick", right);
+    SmartDashboard.putNumber("Target Yaw", mDrivetrain.getTargetYaw());
     mDrivetrain.drive(left, right);
   }
 

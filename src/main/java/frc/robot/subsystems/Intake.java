@@ -20,8 +20,11 @@ public class Intake extends SubsystemBase {
     }
 
     public void drive(double speed){
-        speed = speed > 1 || speed < -1 ? 1 * (speed/Math.abs(speed)) : speed;
         intakeRight.set(speed);
+    }
+
+    public void intakeFeed(double speed){
+        intakeFeed.set(speed);
     }
 
     public void stop() {

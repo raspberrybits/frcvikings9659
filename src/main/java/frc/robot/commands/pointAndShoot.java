@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Intake;
 import frc.robot.Constants.ShooterConstants;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -8,9 +9,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 public class pointAndShoot extends Command{
     Shooter mShooter;
+    Intake mIntake;
 
-    public pointAndShoot(Shooter shooter){
+    public pointAndShoot(Shooter shooter, Intake intake){
         mShooter = shooter;
+        mIntake = intake;
         addRequirements(shooter);
     }
 
@@ -18,6 +21,7 @@ public class pointAndShoot extends Command{
     public void initialize() {
       mShooter.setShooterPrime(ShooterConstants.primeSpeed);
       mShooter.setShooterFeed(ShooterConstants.feedSpeed);
+      mIntake.intakeFeed(ShooterConstants.feedSpeed);
     }
 
     @Override

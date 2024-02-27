@@ -54,8 +54,8 @@ public class RobotContainer {
     // Shooter Launch
     mController
         .rightBumper()
-        .whileTrue(
-            new pointAndShoot(mShooter)
+        .onTrue(
+            new pointAndShoot(mShooter, mIntake)
                 .handleInterrupt(() -> mShooter.stop()));
 
     // Floor Intake

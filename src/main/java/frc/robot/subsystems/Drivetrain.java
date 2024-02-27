@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriverConstants;
 
+import org.photonvision.PhotonCamera;
 
 public class Drivetrain extends SubsystemBase {
   private final CANSparkBase leftRear = new CANSparkMax(DriverConstants.leftRearId, MotorType.kBrushed);
@@ -25,12 +26,15 @@ public class Drivetrain extends SubsystemBase {
   private final CANSparkBase rightRear = new CANSparkMax(DriverConstants.rightRearId, MotorType.kBrushed);
   private final CANSparkBase rightFront = new CANSparkMax(DriverConstants.rightFrontId, MotorType.kBrushed);
   private final DifferentialDrive m_drivetrain = new DifferentialDrive(leftFront, rightFront); 
+  private final PhotonCamera cam = new PhotonCamera("photoncamera");
 
   private final RelativeEncoder encoderLeft = leftFront.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 4096);
   private final RelativeEncoder encoderRight = rightFront.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 4096);
   private final AHRS gyro = new AHRS(SPI.Port.kMXP);
 
   private Pose2d pose = new Pose2d(0, 0, gyro.getRotation2d());
+
+  private double targetYaw = cam.getLatestResult().getBestTarget().getYaw();
 
   private final DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(
     gyro.getRotation2d(), encoderLeft.getPosition(), encoderRight.getPosition(), pose);
@@ -51,6 +55,7 @@ public class Drivetrain extends SubsystemBase {
   public void periodic(){
     odometry.update(gyro.getRotation2d(), encoderLeft.getPosition(), encoderRight.getPosition());
     pose = odometry.getPoseMeters();
+    targetYaw = cam.getLatestResult().getBestTarget().getYaw();
   }
 
   public double getPitch(){
@@ -58,11 +63,15 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public double getYaw(){
-      return (gyro.getYaw());
+    return (gyro.getYaw());
   }
 
   public double getAngle(){
-      return pose.getRotation().getDegrees();
+    return pose.getRotation().getDegrees();
+  }
+
+  public double getTargetYaw(){
+    return targetYaw;
   }
 
   public void stop() {
