@@ -31,7 +31,7 @@ public class RobotContainer {
 
     // Tank Drive
     mDrivetrain.setDefaultCommand(
-        new iDrive(mDrivetrain, mController.getLeftY(), -mController.getRightY()));
+        new iDrive(mDrivetrain, () -> mController.getLeftY(), () -> -mController.getRightY()));
 
     /*
      //Amp Shoot
@@ -42,7 +42,7 @@ public class RobotContainer {
      .withTimeout(ShooterConstants.delay)
      .andThen(new pointAndShoot(mShooter))
      .handleInterrupt(() -> mShooter.stop()));
-     */
+    */
 
     // Shooter Prime
     mController

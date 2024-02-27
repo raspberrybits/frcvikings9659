@@ -32,7 +32,7 @@ public class Drivetrain extends SubsystemBase {
   private Pose2d pose = new Pose2d(0, 0, gyro.getRotation2d());
 
   private final DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(
-      gyro.getRotation2d(), encoderLeft.getPosition(), encoderRight.getPosition(), pose);
+    gyro.getRotation2d(), encoderLeft.getPosition(), encoderRight.getPosition(), pose);
 
 
   public Drivetrain() { 
@@ -40,14 +40,10 @@ public class Drivetrain extends SubsystemBase {
   
     leftRear.follow(leftFront);
     rightRear.follow(rightFront); 
-    
-    rightFront.setInverted(true);
   }
 
   public void drive(double left, double right){
-    left = left > 1 || left < -1 ? 1 * (left/Math.abs(left)) : left;
-    right = right > 1 || right < -1 ? 1 * (right/Math.abs(right)) : right;
-    m_drivetrain.tankDrive(left, right, false);
+    m_drivetrain.tankDrive(left, -right);
   }
 
   @Override

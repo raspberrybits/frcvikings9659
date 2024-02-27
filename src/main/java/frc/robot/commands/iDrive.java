@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import frc.robot.subsystems.Drivetrain;
+import java.util.function.DoubleSupplier;
 import edu.wpi.first.wpilibj2.command.Command;
 
 
@@ -12,10 +13,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class iDrive extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private Drivetrain mDrivetrain;
-  private double left;
-  private double right;
+  private DoubleSupplier left;
+  private DoubleSupplier right;
 
-  public iDrive(Drivetrain drivetrain, double leftSpeed, double rightSpeed) {
+  public iDrive(Drivetrain drivetrain, DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
     mDrivetrain = drivetrain;
     left = leftSpeed;
     right = rightSpeed;
@@ -23,11 +24,12 @@ public class iDrive extends Command {
   }
 
   @Override
-  public void initialize() {}
+  public void initialize() {
+  }
 
   @Override
   public void execute() {
-    mDrivetrain.drive(left, right);
+    mDrivetrain.drive(left.getAsDouble(), right.getAsDouble());
   }
 
   @Override
