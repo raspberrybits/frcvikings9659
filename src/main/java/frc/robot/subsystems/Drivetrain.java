@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriverConstants;
 
@@ -26,7 +27,7 @@ public class Drivetrain extends SubsystemBase {
   private final CANSparkBase rightRear = new CANSparkMax(DriverConstants.rightRearId, MotorType.kBrushed);
   private final CANSparkBase rightFront = new CANSparkMax(DriverConstants.rightFrontId, MotorType.kBrushed);
   private final DifferentialDrive m_drivetrain = new DifferentialDrive(leftFront, rightFront); 
-  private final PhotonCamera cam = new PhotonCamera("photoncamera");
+  private final PhotonCamera cam = new PhotonCamera("april");
 
   private final RelativeEncoder encoderLeft = leftFront.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 4096);
   private final RelativeEncoder encoderRight = rightFront.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 4096);
@@ -71,6 +72,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public double getTargetYaw(){
+    SmartDashboard.putNumber("Target Yaw", targetYaw);
     return targetYaw;
   }
 
