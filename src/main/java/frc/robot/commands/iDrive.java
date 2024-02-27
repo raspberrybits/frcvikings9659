@@ -6,6 +6,9 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.Drivetrain;
 import java.util.function.DoubleSupplier;
+
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 
@@ -13,13 +16,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 public class iDrive extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private Drivetrain mDrivetrain;
-  private DoubleSupplier left;
-  private DoubleSupplier right;
+  private double left;
+  private double right;
 
   public iDrive(Drivetrain drivetrain, DoubleSupplier leftSpeed, DoubleSupplier rightSpeed) {
     mDrivetrain = drivetrain;
-    left = leftSpeed;
-    right = rightSpeed;
+    left = leftSpeed.getAsDouble();
+    right = rightSpeed.getAsDouble();
     addRequirements(drivetrain);
   }
 
@@ -29,7 +32,9 @@ public class iDrive extends Command {
 
   @Override
   public void execute() {
-    mDrivetrain.drive(left.getAsDouble(), right.getAsDouble());
+    SmartDashboard.putNumber("Left Joystick", left);
+    SmartDashboard.putNumber("Right Joystick", right);
+    mDrivetrain.drive(left, right);
   }
 
   @Override

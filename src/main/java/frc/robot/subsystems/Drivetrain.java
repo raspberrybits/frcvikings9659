@@ -9,6 +9,7 @@ import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkRelativeEncoder;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
@@ -25,8 +26,8 @@ public class Drivetrain extends SubsystemBase {
   private final CANSparkBase rightFront = new CANSparkMax(DriverConstants.rightFrontId, MotorType.kBrushed);
   private final DifferentialDrive m_drivetrain = new DifferentialDrive(leftFront, rightFront); 
 
-  private final RelativeEncoder encoderLeft = leftFront.getEncoder();
-  private final RelativeEncoder encoderRight = rightFront.getEncoder();
+  private final RelativeEncoder encoderLeft = leftFront.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 4096);
+  private final RelativeEncoder encoderRight = rightFront.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 4096);
   private final AHRS gyro = new AHRS(SPI.Port.kMXP);
 
   private Pose2d pose = new Pose2d(0, 0, gyro.getRotation2d());
