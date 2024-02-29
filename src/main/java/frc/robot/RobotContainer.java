@@ -14,6 +14,11 @@ import frc.robot.commands.topIntake;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.PathPlannerPath;
+
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class RobotContainer {
@@ -84,9 +89,9 @@ public class RobotContainer {
                 .handleInterrupt(() -> mShooter.stop()));
   }
 
-  /*
-   * public Command getAutonomousCommand() {
-   * return m_autonomousCommand;
-   * }
-   */
+  public Command getAutonomousCommand() {
+        PathPlannerPath path = PathPlannerPath.fromPathFile("Example Path");
+        return AutoBuilder.followPath(path);
+    }
+
 }

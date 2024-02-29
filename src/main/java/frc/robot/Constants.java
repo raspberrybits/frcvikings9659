@@ -10,6 +10,7 @@ public final class Constants {
     public static final int leftFrontId = 2;
     public static final int rightRearId = 4;
     public static final int rightFrontId = 3;
+    public static final double trackWidth = 0.69;
   }
 
   public static class OperatorConstants{
