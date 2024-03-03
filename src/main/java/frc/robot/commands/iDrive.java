@@ -7,13 +7,11 @@ package frc.robot.commands;
 import frc.robot.subsystems.Drivetrain;
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 
 /** An example command that uses an example subsystem. */
 public class iDrive extends Command {
-  @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private Drivetrain mDrivetrain;
   private DoubleSupplier left;
   private DoubleSupplier right;
@@ -31,9 +29,6 @@ public class iDrive extends Command {
 
   @Override
   public void execute() {
-    //SmartDashboard.putNumber("Left Joystick", left);
-    //SmartDashboard.putNumber("Right Joystick", right);
-    //SmartDashboard.putNumber("Target Yaw", mDrivetrain.getTargetYaw());
     mDrivetrain.drive(left.getAsDouble(), right.getAsDouble());
   }
 

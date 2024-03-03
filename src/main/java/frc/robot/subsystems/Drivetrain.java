@@ -17,15 +17,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
-import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriverConstants;
-
-import org.photonvision.PhotonCamera;
 
 public class Drivetrain extends SubsystemBase {
   private final CANSparkBase leftRear = new CANSparkMax(DriverConstants.leftRearId, MotorType.kBrushed);
@@ -36,6 +33,7 @@ public class Drivetrain extends SubsystemBase {
 
   private final RelativeEncoder encoderLeft = leftFront.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 4096);
   private final RelativeEncoder encoderRight = rightFront.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 4096);
+
   private final AHRS gyro = new AHRS(SPI.Port.kMXP);
 
   private Pose2d pose = new Pose2d(0, 0, gyro.getRotation2d());
@@ -46,36 +44,46 @@ public class Drivetrain extends SubsystemBase {
   private final DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(DriverConstants.trackWidth);
 
 
-  public Drivetrain() { 
+  public Drivetrain() {
     gyro.reset();
+    resetEncoders();
   
     leftRear.follow(leftFront);
     rightRear.follow(rightFront);
 
+    encoderRight.setInverted(true);
+
     AutoBuilder.configureRamsete(
-            this::getPose, 
-            this::resetPose, 
-            this::getChassiSpeeds,
-            this::drive,
-            new ReplanningConfig(),
-            () -> {
-              var alliance = DriverStation.getAlliance();
-              if (alliance.isPresent()) {
-                return alliance.get() == DriverStation.Alliance.Red;
-              }
-              return false;
-            },
-            this
-    );
+      this::getPose, 
+      this::resetPose, 
+      this::getChassiSpeeds,
+      this::drive,
+      new ReplanningConfig(),
+      () -> {
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent()) {
+          return alliance.get() == DriverStation.Alliance.Red;
+        }
+        return false;
+      },
+      this
+      );
   }
 
   public void drive(double left, double right){
     SmartDashboard.putNumber("Encoder Left", encoderLeft.getPosition());
     SmartDashboard.putNumber("Encoder Right", encoderRight.getPosition());
-    drivetrain.tankDrive(left, right);
+    drivetrain.tankDrive(left, right, true);
   }
 
   public void drive(ChassisSpeeds speed){
+    SmartDashboard.putNumber("Encoder Left", encoderLeft.getPosition());
+    SmartDashboard.putNumber("Encoder Right", encoderRight.getPosition());
+    SmartDashboard.putNumber("Chasiss Speed X", getChassiSpeeds().vxMetersPerSecond);
+    SmartDashboard.putNumber("Chasiss Speed Y", getChassiSpeeds().vyMetersPerSecond);
+    SmartDashboard.putNumber("Pose2d X", getPose().getX());
+    SmartDashboard.putNumber("Pose2d Y", getPose().getY());
+    SmartDashboard.putNumber("Gyro", getHeading());
     drivetrain.tankDrive(kinematics.toWheelSpeeds(speed).leftMetersPerSecond, kinematics.toWheelSpeeds(speed).rightMetersPerSecond);
   }
 
@@ -86,7 +94,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public ChassisSpeeds getChassiSpeeds() {
-    return new ChassisSpeeds(encoderLeft.getVelocity(), encoderRight.getVelocity(), gyro.getAngle());
+    return new ChassisSpeeds(encoderLeft.getVelocity(), -encoderRight.getVelocity(), gyro.getAngle());
   }
 
   public Pose2d getPose(){
@@ -122,7 +130,7 @@ public class Drivetrain extends SubsystemBase {
     return encoderRight;
   }
 
-
+  
   public void setMaxOutput(double maxOutput) {
     drivetrain.setMaxOutput(maxOutput);
   }

@@ -1,17 +1,15 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkBase;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
-    
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 
 public class Intake extends SubsystemBase {
-    private final CANSparkBase intakeLeft = new CANSparkMax(IntakeConstants.leftIntakeId, MotorType.kBrushed);
-    private final CANSparkBase intakeRight = new CANSparkMax(IntakeConstants.rightIntakeId, MotorType.kBrushed);  
-    private final CANSparkBase intakeFeed = new CANSparkMax(IntakeConstants.intakeFeedId, MotorType.kBrushed);
-
+    private final TalonSRX intakeLeft = new TalonSRX(IntakeConstants.leftIntakeId);
+    private final TalonSRX intakeRight = new TalonSRX(IntakeConstants.rightIntakeId);  
+    private final TalonSRX intakeFeed = new TalonSRX(IntakeConstants.intakeFeedId);
     public Intake() {
         intakeLeft.follow(intakeRight);
         intakeFeed.follow(intakeRight);
@@ -20,16 +18,16 @@ public class Intake extends SubsystemBase {
     }
 
     public void drive(double speed){
-        intakeRight.set(speed);
+        intakeRight.set(TalonSRXControlMode.PercentOutput, speed);
     }
 
     public void intakeFeed(double speed){
-        intakeFeed.set(speed);
+        intakeFeed.set(TalonSRXControlMode.PercentOutput, speed);
     }
 
     public void stop() {
-        intakeLeft.stopMotor();
-        intakeRight.stopMotor();
-        intakeFeed.stopMotor();
+        intakeLeft.set(TalonSRXControlMode.PercentOutput, 0);
+        intakeRight.set(TalonSRXControlMode.PercentOutput, 0);
+        intakeFeed.set(TalonSRXControlMode.PercentOutput, 0);
     }
 }
