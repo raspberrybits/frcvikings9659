@@ -16,12 +16,6 @@
           "data": {
             "pathName": "Example Path"
           }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 10000.0
-          }
         }
       ]
     }

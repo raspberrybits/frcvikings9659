@@ -15,8 +15,6 @@ public class Shooter extends SubsystemBase {
     private final TalonSRX ampHook = new TalonSRX(ShooterConstants.ampHookId);
 
     public Shooter() {
-        shooterPrime.setInverted(true);
-        shooterTopFeed.setInverted(true);
     }
 
     public void setShooterFeed(double speed){

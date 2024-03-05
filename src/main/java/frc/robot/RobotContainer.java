@@ -50,7 +50,7 @@ public class RobotContainer {
 
     // Shooter Prime
     mController
-        .leftBumper()
+        .rightTrigger()
         .whileTrue(
             new prime(mShooter)
                 .handleInterrupt(() -> mShooter.stop()));
@@ -64,7 +64,7 @@ public class RobotContainer {
 
     // Floor Intake
     mController
-        .y()
+        .leftBumper()
         .whileTrue(
             new floorIntake(mIntake)
                 .handleInterrupt(() -> mIntake.stop()));
