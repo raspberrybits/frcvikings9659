@@ -21,11 +21,12 @@ public class pointAndShoot extends Command{
     public void initialize() {
       mShooter.setShooterPrime(ShooterConstants.primeSpeed);
       mShooter.setShooterFeed(ShooterConstants.feedSpeed);
-      mIntake.intakeFeed(ShooterConstants.feedSpeed);
     }
 
     @Override
-    public void execute() {}
+    public void execute() {
+      mIntake.intakeFeed(ShooterConstants.feedSpeed);
+    }
   
     @Override
     public void end(boolean interrupted) {
