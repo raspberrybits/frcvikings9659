@@ -6,18 +6,18 @@ import frc.robot.Constants.IntakeConstants;
 import edu.wpi.first.wpilibj2.command.Command;
 
 
-public class floorIntake extends Command{
+public class floorReverse extends Command{
   Intake mIntake;
   
-    public floorIntake(Intake intake){
+    public floorReverse(Intake intake){
         mIntake = intake;
         addRequirements(intake);
     }
 
     @Override
     public void initialize() {
-      mIntake.drive(IntakeConstants.speed);
-      mIntake.intakeFeed(IntakeConstants.speed*0.25);
+      mIntake.drive(-IntakeConstants.speed);
+      mIntake.intakeFeed(-IntakeConstants.speed);
     }
     
     @Override

@@ -9,8 +9,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 
 public class Intake extends SubsystemBase {
-    private final VictorSPX intakeLeft = new VictorSPX(IntakeConstants.leftIntakeId);
-    private final TalonSRX intakeRight = new TalonSRX(IntakeConstants.rightIntakeId);  
+    private final TalonSRX intakeLeft = new TalonSRX(IntakeConstants.leftIntakeId);
+    private final VictorSPX intakeRight = new VictorSPX(IntakeConstants.rightIntakeId);  
     private final VictorSPX intakeFeed = new VictorSPX(IntakeConstants.intakeFeedId);
     public Intake() {
         intakeLeft.follow(intakeRight);
@@ -20,8 +20,8 @@ public class Intake extends SubsystemBase {
     }
 
     public void drive(double speed){
-        intakeRight.set(TalonSRXControlMode.PercentOutput, -speed);
-        intakeLeft.set(VictorSPXControlMode.PercentOutput, speed);
+        intakeRight.set(VictorSPXControlMode.PercentOutput, -speed);
+        intakeLeft.set(TalonSRXControlMode.PercentOutput, speed);
     }
 
     public void intakeFeed(double speed){
@@ -29,8 +29,8 @@ public class Intake extends SubsystemBase {
     }
 
     public void stop() {
-        intakeLeft.set(VictorSPXControlMode.PercentOutput, 0);
-        intakeRight.set(TalonSRXControlMode.PercentOutput, 0);
+        intakeLeft.set(TalonSRXControlMode.PercentOutput, 0);
+        intakeRight.set(VictorSPXControlMode.PercentOutput, 0);
         intakeFeed.set(VictorSPXControlMode.PercentOutput, 0);
     }
 }

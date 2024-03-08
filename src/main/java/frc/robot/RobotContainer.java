@@ -10,6 +10,7 @@ import frc.robot.commands.pointAndShoot;
 import frc.robot.commands.iDrive;
 import frc.robot.commands.prime;
 import frc.robot.commands.floorIntake;
+import frc.robot.commands.floorReverse;
 import frc.robot.commands.topIntake;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Intake;
@@ -58,7 +59,7 @@ public class RobotContainer {
     // Shooter Launch
     mController
         .rightBumper()
-        .onTrue(
+        .whileTrue(
             new pointAndShoot(mShooter, mIntake)
                 .handleInterrupt(() -> mShooter.stop()));
 
@@ -69,8 +70,16 @@ public class RobotContainer {
             new floorIntake(mIntake)
                 .handleInterrupt(() -> mIntake.stop()));
 
+    // Floor Intake Reverse
+    mController
+        .y()
+        .whileTrue(
+            new floorReverse(mIntake)
+                .handleInterrupt(() -> mIntake.stop()));
+
     // Top Intake
     mController
+    
         .b()
         .whileTrue(
             new topIntake(mShooter)

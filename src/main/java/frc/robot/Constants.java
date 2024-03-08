@@ -29,9 +29,9 @@ public final class Constants {
     public static final int shooterTopFeedId = 6;
     public static final int shooterBottomFeedId = 7;
     public static final int ampHookId = 11;
-    public static final double primeSpeed = 1.0;
+    public static final double primeSpeed = 200.0;
     public static final double feedSpeed = 1.0;
-    public static final double topIntakeSpeed = 1.0;
+    public static final double topIntakeSpeed = 0.5;
     public static final double delay = 1.0;
 
   }
