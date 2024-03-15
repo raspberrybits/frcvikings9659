@@ -14,6 +14,8 @@ import frc.robot.commands.floorIntake;
 import frc.robot.commands.floorReverse;
 import frc.robot.commands.hangRetract;
 import frc.robot.commands.topIntake;
+import frc.robot.commands.Autos.taxi;
+import frc.robot.commands.Autos.shootPreload;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Hang;
 import frc.robot.subsystems.Intake;
@@ -41,8 +43,10 @@ public class RobotContainer {
     configureBindings();
     autoChooser = AutoBuilder.buildAutoChooser();
 
-    SmartDashboard.putData("Auto Chooser", autoChooser);
+    autoChooser.addOption("Shoot Preload", new shootPreload(mShooter, mIntake));
+    autoChooser.addOption("Taxi", new taxi(mDrivetrain));
 
+    SmartDashboard.putData("Auto Chooser", autoChooser);
   }
 
   private void configureBindings() {

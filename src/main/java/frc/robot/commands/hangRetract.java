@@ -13,6 +13,7 @@ public class hangRetract extends Command{
     public hangRetract(Hang hang, double speed){
         mHang = hang;
         hangSpeed = speed;
+        setName("hangRetract");
         addRequirements(hang);
     }
 

@@ -11,6 +11,7 @@ public class floorIntake extends Command{
   
     public floorIntake(Intake intake){
         mIntake = intake;
+        setName("floorIntake");
         addRequirements(intake);
     }
 

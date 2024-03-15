@@ -12,9 +12,10 @@ public class pointAndShoot extends Command{
     Intake mIntake;
 
     public pointAndShoot(Shooter shooter, Intake intake){
-        mShooter = shooter;
-        mIntake = intake;
-        addRequirements(shooter);
+      mShooter = shooter;
+      mIntake = intake;
+      setName("pointAndShoot");
+      addRequirements(shooter);
     }
 
     @Override

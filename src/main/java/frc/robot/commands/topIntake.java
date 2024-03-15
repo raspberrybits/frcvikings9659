@@ -10,14 +10,14 @@ public class topIntake extends Command{
     Shooter mShooter;
 
     public topIntake(Shooter shooter){
-        mShooter = shooter;
-        addRequirements(shooter);
+      mShooter = shooter;
+      setName("topIntake");
+      addRequirements(shooter);
     }
 
     @Override
     public void initialize() {
-        mShooter.setShooterPrime(ShooterConstants.topIntakeSpeed);
-        //mShooter.setShooterFeed(-ShooterConstants.topIntakeSpeed);
+      mShooter.setShooterPrime(ShooterConstants.topIntakeSpeed);
     }
 
     @Override

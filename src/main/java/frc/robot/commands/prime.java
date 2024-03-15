@@ -11,6 +11,7 @@ public class prime extends Command{
 
     public prime(Shooter shooter){
         mShooter = shooter;
+        setName("prime");
         addRequirements(shooter);
     }
 

@@ -11,6 +11,7 @@ public class floorReverse extends Command{
   
     public floorReverse(Intake intake){
         mIntake = intake;
+        setName("floorReverse");
         addRequirements(intake);
     }
 
