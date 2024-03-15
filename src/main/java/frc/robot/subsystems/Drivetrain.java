@@ -54,15 +54,25 @@ public class Drivetrain extends SubsystemBase {
 
 
   public Drivetrain() {
-    gyro.reset();
-    resetEncoders();
   
     leftRear.follow(leftFront);
     rightRear.follow(rightFront);
 
-    encoderRight.setInverted(true);
-
-    //AutoBuilder.configureRamsete(getPose(), resetPose(pose), null, null, null, null, null);
+    AutoBuilder.configureRamsete(
+            this::getPose,
+            this::resetPose,
+            this::getChassiSpeeds,
+            this::driveChassis,
+            new ReplanningConfig(),
+            () -> {
+              var alliance = DriverStation.getAlliance();
+              if (alliance.isPresent()) {
+                return alliance.get() == DriverStation.Alliance.Red;
+              }
+              return false;
+            },
+            this 
+    );
   }
 
   public void drive(double left, double right){
@@ -111,6 +121,10 @@ public class Drivetrain extends SubsystemBase {
         m_rightPIDController.calculate(encoderRight.getVelocity(), speeds.rightMetersPerSecond);
     leftFront.setVoltage(leftOutput + leftFeedforward);
     rightFront.setVoltage(rightOutput + rightFeedforward);
+  }
+
+  public void driveChassis(ChassisSpeeds speed){
+    setSpeeds(kinematics.toWheelSpeeds(speed));
   }
 
 

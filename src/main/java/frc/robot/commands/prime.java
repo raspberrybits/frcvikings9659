@@ -17,7 +17,6 @@ public class prime extends Command{
     @Override
     public void initialize() {
       mShooter.setShooterPrime(ShooterConstants.primeSpeed);
-      //mShooter.setShooterFeed(ShooterConstants.primeSpeed);
     }
 
     @Override
