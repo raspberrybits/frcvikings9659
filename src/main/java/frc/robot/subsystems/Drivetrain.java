@@ -29,14 +29,14 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.ReplanningConfig;
 
 public class Drivetrain extends SubsystemBase {
-  private final CANSparkBase leftRear = new CANSparkMax(DriverConstants.leftRearId, MotorType.kBrushed);
-  private final CANSparkBase leftFront = new CANSparkMax(DriverConstants.leftFrontId, MotorType.kBrushed);
-  private final CANSparkBase rightRear = new CANSparkMax(DriverConstants.rightRearId, MotorType.kBrushed);
-  private final CANSparkBase rightFront = new CANSparkMax(DriverConstants.rightFrontId, MotorType.kBrushed);
+  private final CANSparkBase leftRear = new CANSparkMax(DriverConstants.leftRearId, MotorType.kBrushless);
+  private final CANSparkBase leftFront = new CANSparkMax(DriverConstants.leftFrontId, MotorType.kBrushless);
+  private final CANSparkBase rightRear = new CANSparkMax(DriverConstants.rightRearId, MotorType.kBrushless);
+  private final CANSparkBase rightFront = new CANSparkMax(DriverConstants.rightFrontId, MotorType.kBrushless);
   private final DifferentialDrive drivetrain = new DifferentialDrive(leftFront, rightFront);
 
-  private final RelativeEncoder encoderLeft = leftFront.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 4096);
-  private final RelativeEncoder encoderRight = rightFront.getEncoder(SparkRelativeEncoder.Type.kQuadrature, 4096);
+  private final RelativeEncoder encoderLeft = leftFront.getEncoder(SparkRelativeEncoder.Type.kHallSensor, 42);
+  private final RelativeEncoder encoderRight = rightFront.getEncoder(SparkRelativeEncoder.Type.kHallSensor, 42);
 
   private final AHRS gyro = new AHRS(SPI.Port.kMXP);
 
@@ -58,6 +58,14 @@ public class Drivetrain extends SubsystemBase {
     leftRear.follow(leftFront);
     rightRear.follow(rightFront);
 
+    //encoderLeft.setInverted(true);
+
+    encoderLeft.setPositionConversionFactor(DriverConstants.positionConversionFactor);
+    encoderLeft.setVelocityConversionFactor(DriverConstants.velocityConversionFactor);
+
+    encoderRight.setPositionConversionFactor(DriverConstants.positionConversionFactor);
+    encoderRight.setVelocityConversionFactor(DriverConstants.velocityConversionFactor);
+
     AutoBuilder.configureRamsete(
             this::getPose,
             this::resetPose,
@@ -76,8 +84,6 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void drive(double left, double right){
-    SmartDashboard.putNumber("Encoder Left", encoderLeft.getPosition());
-    SmartDashboard.putNumber("Encoder Right", encoderRight.getPosition());
     drivetrain.tankDrive(left, right, true);
   }
 
@@ -88,6 +94,10 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic(){
+    SmartDashboard.putNumber("Encoder Left Position", encoderLeft.getPosition());
+    SmartDashboard.putNumber("Encoder Right Position", encoderRight.getPosition());
+    SmartDashboard.putNumber("Encoder Left Velocity", encoderLeft.getVelocity());
+    SmartDashboard.putNumber("Encoder Right Velocity", encoderRight.getVelocity());
     odometry.update(gyro.getRotation2d(), encoderLeft.getPosition(), encoderRight.getPosition());
     pose = odometry.getPoseMeters();
   }

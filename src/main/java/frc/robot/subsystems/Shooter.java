@@ -28,12 +28,6 @@ public class Shooter extends SubsystemBase {
         shooterPrimeLeft.set(-speed);
     }
 
-    public void topIntake(double speed){
-        shooterPrimeRight.set(-speed*0.6);
-        shooterPrimeLeft.set(speed*0.6);
-        shooterTopFeed.set(VictorSPXControlMode.PercentOutput, speed);
-    }
-
     public void extend(){}
 
     public void stop(){

@@ -1,8 +1,6 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
+
+import edu.wpi.first.math.util.Units;
 
 public final class Constants {
   public static class DriverConstants {
@@ -12,6 +10,10 @@ public final class Constants {
     public static final int rightFrontId = 3;
     public static final double trackWidth = 0.69;
     public static final double autoSpeed = 0.35;
+    public static final double wheelDiameter = Units.inchesToMeters(6);
+    public static final double gearRatio = 8.46;
+    public static final double positionConversionFactor = (wheelDiameter*Math.PI) / gearRatio;
+    public static final double velocityConversionFactor = (wheelDiameter*Math.PI) / (gearRatio*60);
   }
 
   public static class OperatorConstants{
@@ -32,11 +34,10 @@ public final class Constants {
     public static final int shooterTopFeedId = 6;
     public static final int shooterBottomFeedId = 7;
     public static final int ampHookId = 11;
-    public static final double primeSpeed = 200.0;
+    public static final double primeSpeed = 0.8;
     public static final double feedSpeed = 1.0;
-    public static final double topIntakeSpeed = 0.25;
+    public static final double topIntakeSpeed = 0.5;
     public static final double delay = 5;
-
   }
 
   public static class HangConstants{

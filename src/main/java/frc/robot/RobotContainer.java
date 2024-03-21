@@ -10,6 +10,7 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.pointAndShoot;
 import frc.robot.commands.iDrive;
 import frc.robot.commands.prime;
+import frc.robot.commands.ampShoot;
 import frc.robot.commands.floorIntake;
 import frc.robot.commands.floorReverse;
 import frc.robot.commands.hangRetract;
@@ -52,7 +53,7 @@ public class RobotContainer {
   private void configureBindings() {
     //Tank Drive (single controller)
    mDrivetrain.setDefaultCommand(
-        new iDrive(mDrivetrain, () -> mControls.getLeftY(), () -> -mControls.getRightY()));
+        new iDrive(mDrivetrain, () -> -mControls.getLeftY(), () -> mControls.getRightY()));
 
     /* Tank Drive (2 controllers)  
     mDrivetrain.setDefaultCommand(
@@ -62,13 +63,8 @@ public class RobotContainer {
     // Amp Shoot
     mControls
         .a()
-        .onTrue(
-            new prime(mShooter)
-                .withTimeout(ShooterConstants.delay)
-                .andThen()
-                .withTimeout(0)
-                .andThen());
-    
+        .whileTrue(
+            new ampShoot(mShooter, mIntake).withTimeout(0.5));
     
     // Shooter Prime
     mControls
@@ -102,13 +98,13 @@ public class RobotContainer {
 
     //Hang Retract
     mControls
-        .rightStick()
+        .povDown()
         .whileTrue(
             new hangRetract(mHang, HangConstants.speed));
 
     //Hang Extend
     mControls
-        .leftStick()
+        .povUp()
         .whileTrue(
             new hangRetract(mHang, -HangConstants.speed));
   }
