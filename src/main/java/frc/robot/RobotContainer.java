@@ -6,7 +6,6 @@ package frc.robot;
 
 import frc.robot.Constants.HangConstants;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.pointAndShoot;
 import frc.robot.commands.iDrive;
 import frc.robot.commands.prime;
