@@ -18,7 +18,7 @@ public class floorIntake extends Command{
     @Override
     public void initialize() {
       mIntake.drive(IntakeConstants.speed);
-      mIntake.intakeFeed(IntakeConstants.speed*0.15);
+      mIntake.intakeFeed(IntakeConstants.speed);
     }
     
     @Override

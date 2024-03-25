@@ -10,9 +10,9 @@ public class shootPreload extends SequentialCommandGroup {
     public shootPreload(Shooter mShooter, Intake mIntake) {
         addCommands(
             new prime(mShooter)
+            .withTimeout(2),
+            new pointAndShoot(mShooter, mIntake)
             .withTimeout(2)
-            .andThen(new pointAndShoot(mShooter, mIntake)
-            .withTimeout(2))
         );
     }
 }

@@ -34,7 +34,7 @@ public final class Constants {
     public static final int shooterTopFeedId = 6;
     public static final int shooterBottomFeedId = 7;
     public static final int ampHookId = 11;
-    public static final double primeSpeed = 0.8;
+    public static final double primeSpeed = 1.0 ;
     public static final double feedSpeed = 1.0;
     public static final double topIntakeSpeed = 0.5;
     public static final double delay = 5;
@@ -43,5 +43,7 @@ public final class Constants {
   public static class HangConstants{
     public static final int hangId = 10;
     public static final double speed = 1;
+    public static final double winchDistance = 301;
+    public static final double unwinchDistance = 0;
   }
 }

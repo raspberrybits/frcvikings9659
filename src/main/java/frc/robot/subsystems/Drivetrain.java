@@ -18,12 +18,25 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.MutableMeasure;
+import edu.wpi.first.units.Velocity;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.DriverConstants;
+
+import static edu.wpi.first.units.MutableMeasure.mutable;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.ReplanningConfig;
@@ -35,36 +48,74 @@ public class Drivetrain extends SubsystemBase {
   private final CANSparkBase rightFront = new CANSparkMax(DriverConstants.rightFrontId, MotorType.kBrushless);
   private final DifferentialDrive drivetrain = new DifferentialDrive(leftFront, rightFront);
 
-  private final RelativeEncoder encoderLeft = leftFront.getEncoder(SparkRelativeEncoder.Type.kHallSensor, 42);
-  private final RelativeEncoder encoderRight = rightFront.getEncoder(SparkRelativeEncoder.Type.kHallSensor, 42);
+  private final RelativeEncoder encoderLeftFront = leftFront.getEncoder(SparkRelativeEncoder.Type.kHallSensor, 42);
+  private final RelativeEncoder encoderRightFront = rightFront.getEncoder(SparkRelativeEncoder.Type.kHallSensor, 42);
+
+  private final RelativeEncoder encoderLeftRear = leftRear.getEncoder(SparkRelativeEncoder.Type.kHallSensor, 42);
+  private final RelativeEncoder encoderRightRear = rightRear.getEncoder(SparkRelativeEncoder.Type.kHallSensor, 42);
 
   private final AHRS gyro = new AHRS(SPI.Port.kMXP);
-
-  private Pose2d pose = new Pose2d(0, 0, gyro.getRotation2d());
 
   private final PIDController m_leftPIDController = new PIDController(1, 0, 0);
   private final PIDController m_rightPIDController = new PIDController(1, 0, 0);
 
-  private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(1, 3);
+  private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(1, 2.16, 0.50);
 
   private final DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(
-    gyro.getRotation2d(), encoderLeft.getPosition(), encoderRight.getPosition(), pose);
+    gyro.getRotation2d(), encoderLeftFront.getPosition(), encoderRightFront.getPosition(), getPose());
 
   private final DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(DriverConstants.trackWidth);
 
+  private final MutableMeasure<Voltage> m_appliedVoltage = mutable(Volts.of(0));
+  private final MutableMeasure<Distance> m_distance = mutable(Meters.of(0));
+  private final MutableMeasure<Velocity<Distance>> m_velocity = mutable(MetersPerSecond.of(0));
+
+  private final SysIdRoutine m_sysIdRoutine =
+      new SysIdRoutine(
+          new SysIdRoutine.Config(),
+          new SysIdRoutine.Mechanism(
+              (Measure<Voltage> volts) -> {
+                leftFront.setVoltage(volts.in(Volts));
+                rightFront.setVoltage(volts.in(Volts));
+              },
+              log -> {
+                log.motor("drive-left")
+                    .voltage(
+                        m_appliedVoltage.mut_replace(
+                            leftFront.get() * RobotController.getBatteryVoltage(), Volts))
+                    .linearPosition(m_distance.mut_replace(encoderLeftFront.getPosition(), Meters))
+                    .linearVelocity(
+                        m_velocity.mut_replace(encoderLeftFront.getVelocity(), MetersPerSecond));
+                log.motor("drive-right")
+                    .voltage(
+                        m_appliedVoltage.mut_replace(
+                            rightFront.get() * RobotController.getBatteryVoltage(), Volts))
+                    .linearPosition(m_distance.mut_replace(encoderRightFront.getPosition(), Meters))
+                    .linearVelocity(
+                        m_velocity.mut_replace(encoderRightFront.getVelocity(), MetersPerSecond));
+              },
+              this));
+
 
   public Drivetrain() {
-  
+    resetEncoders();
+    gyro.reset();
     leftRear.follow(leftFront);
     rightRear.follow(rightFront);
 
-    //encoderLeft.setInverted(true);
+    leftFront.setInverted(true);
 
-    encoderLeft.setPositionConversionFactor(DriverConstants.positionConversionFactor);
-    encoderLeft.setVelocityConversionFactor(DriverConstants.velocityConversionFactor);
+    encoderLeftFront.setPositionConversionFactor(DriverConstants.positionConversionFactor);
+    encoderLeftFront.setVelocityConversionFactor(DriverConstants.velocityConversionFactor);
 
-    encoderRight.setPositionConversionFactor(DriverConstants.positionConversionFactor);
-    encoderRight.setVelocityConversionFactor(DriverConstants.velocityConversionFactor);
+    encoderRightFront.setPositionConversionFactor(DriverConstants.positionConversionFactor);
+    encoderRightFront.setVelocityConversionFactor(DriverConstants.velocityConversionFactor);
+
+    encoderLeftRear.setPositionConversionFactor(DriverConstants.positionConversionFactor);
+    encoderLeftRear.setVelocityConversionFactor(DriverConstants.velocityConversionFactor);
+
+    encoderRightRear.setPositionConversionFactor(DriverConstants.positionConversionFactor);
+    encoderRightRear.setVelocityConversionFactor(DriverConstants.velocityConversionFactor);
 
     AutoBuilder.configureRamsete(
             this::getPose,
@@ -94,16 +145,15 @@ public class Drivetrain extends SubsystemBase {
 
   @Override
   public void periodic(){
-    SmartDashboard.putNumber("Encoder Left Position", encoderLeft.getPosition());
-    SmartDashboard.putNumber("Encoder Right Position", encoderRight.getPosition());
-    SmartDashboard.putNumber("Encoder Left Velocity", encoderLeft.getVelocity());
-    SmartDashboard.putNumber("Encoder Right Velocity", encoderRight.getVelocity());
-    odometry.update(gyro.getRotation2d(), encoderLeft.getPosition(), encoderRight.getPosition());
-    pose = odometry.getPoseMeters();
+    SmartDashboard.putNumber("Encoder Left FRONT Position", encoderLeftFront.getPosition());
+    SmartDashboard.putNumber("Encoder Right FRONT Position", encoderRightFront.getPosition());
+    SmartDashboard.putNumber("Encoder Left REAR Position", encoderLeftRear.getPosition());
+    SmartDashboard.putNumber("Encoder Right REAR Position", encoderRightRear.getPosition());
+    odometry.update(gyro.getRotation2d(), encoderLeftFront.getPosition(), encoderRightFront.getPosition());
   }
 
   public ChassisSpeeds getChassiSpeeds() {
-    return new ChassisSpeeds(encoderLeft.getVelocity(), encoderRight.getVelocity(), gyro.getAngle());
+    return new ChassisSpeeds(encoderLeftFront.getVelocity(), encoderRightFront.getVelocity(), gyro.getAngle());
   }
 
   public Pose2d getPose(){
@@ -112,13 +162,7 @@ public class Drivetrain extends SubsystemBase {
 
   public void resetPose(Pose2d pose) {
     odometry.resetPosition(
-        gyro.getRotation2d(), encoderLeft.getPosition(), encoderRight.getPosition(), pose);
-  }
-
-  public void driveVolts(double leftVolts, double rightVolts) {
-    leftFront.setVoltage(leftVolts);
-    rightFront.setVoltage(rightVolts);
-    drivetrain.feed();
+        gyro.getRotation2d(), encoderLeftFront.getPosition(), encoderRightFront.getPosition(), pose);
   }
 
   public void setSpeeds(DifferentialDriveWheelSpeeds speeds) {
@@ -126,9 +170,9 @@ public class Drivetrain extends SubsystemBase {
     final double rightFeedforward = m_feedforward.calculate(speeds.rightMetersPerSecond);
 
     final double leftOutput =
-        m_leftPIDController.calculate(encoderLeft.getVelocity(), speeds.leftMetersPerSecond);
+        m_leftPIDController.calculate(encoderLeftFront.getVelocity(), speeds.leftMetersPerSecond);
     final double rightOutput =
-        m_rightPIDController.calculate(encoderRight.getVelocity(), speeds.rightMetersPerSecond);
+        m_rightPIDController.calculate(encoderRightFront.getVelocity(), speeds.rightMetersPerSecond);
     leftFront.setVoltage(leftOutput + leftFeedforward);
     rightFront.setVoltage(rightOutput + rightFeedforward);
   }
@@ -139,25 +183,12 @@ public class Drivetrain extends SubsystemBase {
 
 
   public void resetEncoders() {
-    encoderLeft.setPosition(0);
-    encoderRight.setPosition(0);
-  }
-
-  public double getAverageEncoderDistance() {
-    return (encoderLeft.getPosition() + encoderRight.getPosition()) / 2.0;
-  }
-
-  public RelativeEncoder getLeftEncoder() {
-    return encoderLeft;
-  }
-
-
-  public RelativeEncoder getRightEncoder() {
-    return encoderRight;
+    encoderLeftFront.setPosition(0);
+    encoderRightFront.setPosition(0);
   }
 
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    return new DifferentialDriveWheelSpeeds(encoderLeft.getVelocity(), encoderRight.getVelocity());
+    return new DifferentialDriveWheelSpeeds(encoderLeftFront.getVelocity(), encoderRightFront.getVelocity());
   }
 
   
@@ -165,16 +196,16 @@ public class Drivetrain extends SubsystemBase {
     drivetrain.setMaxOutput(maxOutput);
   }
 
-  public void zeroHeading() {
-    gyro.reset();
+  public RelativeEncoder getLeftEncoder() {
+    return encoderLeftFront;
+  }
+
+  public RelativeEncoder getRightEncoder() {
+    return encoderRightFront;
   }
 
   public double getHeading() {
     return gyro.getRotation2d().getDegrees();
-  }
-
-  public double getTurnRate() {
-    return -gyro.getRate();
   }
 
   public void stop() {
@@ -182,5 +213,13 @@ public class Drivetrain extends SubsystemBase {
     rightRear.stopMotor();
     rightFront.stopMotor();
     leftRear.stopMotor();
+  }
+
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutine.quasistatic(direction);
+  }
+
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return m_sysIdRoutine.dynamic(direction);
   }
 }

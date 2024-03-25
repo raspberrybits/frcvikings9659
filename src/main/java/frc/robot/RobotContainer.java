@@ -1,13 +1,8 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 import frc.robot.Constants.HangConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.pointAndShoot;
-import frc.robot.commands.iDrive;
 import frc.robot.commands.prime;
 import frc.robot.commands.ampShoot;
 import frc.robot.commands.floorIntake;
@@ -26,90 +21,102 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class RobotContainer {
-  private final Drivetrain mDrivetrain = new Drivetrain();
-  private final Intake mIntake = new Intake();
-  private final Shooter mShooter = new Shooter();
-  private final Hang mHang = new Hang();
-  
-  private final SendableChooser<Command> autoChooser;
+    private final Drivetrain mDrivetrain = new Drivetrain();
+    private final Intake mIntake = new Intake();
+    private final Shooter mShooter = new Shooter();
+    private final Hang mHang = new Hang();
 
-  //private final CommandXboxController mDriver = new CommandXboxController(OperatorConstants.driverPort);
-  private final CommandXboxController mControls = new CommandXboxController(OperatorConstants.controlsPort);
+    private final SendableChooser<Command> autoChooser;
 
-  public RobotContainer() {
-    configureBindings();
-    autoChooser = AutoBuilder.buildAutoChooser();
+    // private final CommandXboxController mDriver = new
+    // CommandXboxController(OperatorConstants.driverPort);
+    private final CommandXboxController mControls = new CommandXboxController(OperatorConstants.controlsPort);
 
-    autoChooser.addOption("Shoot Preload", new shootPreload(mShooter, mIntake));
-    autoChooser.addOption("Taxi", new taxi(mDrivetrain));
+    public RobotContainer() {
+        configureBindings();
+        autoChooser = AutoBuilder.buildAutoChooser("Shoot Preload");
 
-    SmartDashboard.putData("Auto Chooser", autoChooser);
-  }
+        autoChooser.addOption("Shoot Preload", new shootPreload(mShooter, mIntake));
+        autoChooser.addOption("Taxi", new taxi(mDrivetrain));
 
-  private void configureBindings() {
-    //Tank Drive (single controller)
-   mDrivetrain.setDefaultCommand(
-        new iDrive(mDrivetrain, () -> -mControls.getLeftY(), () -> mControls.getRightY()));
+        SmartDashboard.putData("Auto Chooser", autoChooser);
+    }
 
-    /* Tank Drive (2 controllers)  
-    mDrivetrain.setDefaultCommand(
+    private void configureBindings() {
+        // Tank Drive (single controller)
+        mDrivetrain.setDefaultCommand(
+                new RunCommand(
+                        () -> mDrivetrain.drive(mControls.getLeftY(), mControls.getRightY()),
+                        mDrivetrain));
 
-        new iDrive(mDrivetrain, () -> mDriver.getLeftY(), () -> -mDriver.getRightY()));*/
+        /* 
+         * mDrivetrain.setDefaultCommand(new iDrive(mDrivetrain, mDriver.getLeftY(), mDriver.getRightY()));
+        */
 
-    // Amp Shoot
-    mControls
-        .a()
-        .whileTrue(
-            new ampShoot(mShooter, mIntake).withTimeout(0.5));
-    
-    // Shooter Prime
-    mControls
-        .leftTrigger()
-        .whileTrue(
-            new prime(mShooter));
+        /*
+         * Tank Drive (2 controllers)
+         * mDrivetrain.setDefaultCommand(
+         *      new RunCommand(
+         *              () -> mDrivetrain.drive(mDriver.getLeftY(), mDriver.getRightY()),
+         *              mDrivetrain));
+         */
 
-    // Shooter Launch
-    mControls
-        .leftBumper()
-        .whileTrue(
-            new pointAndShoot(mShooter, mIntake));
+        // Amp Shoot
+        mControls
+                .b()
+                .whileTrue(
+                        new ampShoot(mShooter, mIntake).withTimeout(0.5));
 
-    // Floor Intake
-    mControls
-        .rightTrigger()
-        .whileTrue(
-            new floorIntake(mIntake));
+        // Shooter Prime
+        mControls
+                .leftTrigger()
+                .whileTrue(
+                        new prime(mShooter));
 
-    // Floor Intake Reverse
-    mControls
-        .rightBumper()
-        .whileTrue(
-            new floorReverse(mIntake));
+        // Shooter Launch
+        mControls
+                .leftBumper()
+                .whileTrue(
+                        new pointAndShoot(mShooter, mIntake));
 
-    // Top Intake
-    mControls
-        .x()
-        .whileTrue(
-            new topIntake(mShooter));
+        // Floor Intake
+        mControls
+                .rightTrigger()
+                .whileTrue(
+                        new floorIntake(mIntake));
 
-    //Hang Retract
-    mControls
-        .povDown()
-        .whileTrue(
-            new hangRetract(mHang, HangConstants.speed));
+        // Floor Intake Reverse
+        mControls
+                .rightBumper()
+                .whileTrue(
+                        new floorReverse(mIntake));
 
-    //Hang Extend
-    mControls
-        .povUp()
-        .whileTrue(
-            new hangRetract(mHang, -HangConstants.speed));
-  }
+        // Top Intake
+        mControls
+                .x()
+                .whileTrue(
+                        new topIntake(mShooter));
 
-  public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
-  }
+        // Hang Winch
+        mControls
+                .povDown()
+                .and(mHang.canWinch())
+                .whileTrue(
+                        new hangRetract(mHang, HangConstants.speed));
+
+        // Hang Unwinch
+        mControls
+                .povUp()
+                .and(mHang.canUnwinch())
+                .whileTrue(
+                        new hangRetract(mHang, -HangConstants.speed));
+    }
+
+    public Command getAutonomousCommand() {
+        return autoChooser.getSelected();
+    }
 }
- 

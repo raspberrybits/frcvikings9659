@@ -7,7 +7,7 @@ import frc.robot.subsystems.Drivetrain;
 public class taxi extends SequentialCommandGroup {
     public taxi(Drivetrain mDrivetrain) {
         addCommands(
-            new iDrive(mDrivetrain, () -> 0.5, () -> 0.5),
+            new iDrive(mDrivetrain, () -> 0.5, () -> 0.5).
             withTimeout(3)
         );
     }
