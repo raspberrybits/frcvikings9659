@@ -62,8 +62,8 @@ public class Drivetrain extends SubsystemBase {
 
   private final AHRS gyro = new AHRS(SPI.Port.kMXP);
 
-  private final PIDController m_leftPIDController = new PIDController(1, 0, 0);
-  private final PIDController m_rightPIDController = new PIDController(1, 0, 0);
+  private final PIDController m_leftPIDController = new PIDController(0.001, 0, 0);
+  private final PIDController m_rightPIDController = new PIDController(0.001, 0, 0);
 
   private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(1, 2.16, 0.50);
 
