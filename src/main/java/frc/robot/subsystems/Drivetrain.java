@@ -10,6 +10,7 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkRelativeEncoder;
+import com.revrobotics.CANSparkBase.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -38,6 +39,8 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.wpilibj.Encoder;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.ReplanningConfig;
 
@@ -54,6 +57,9 @@ public class Drivetrain extends SubsystemBase {
   private final RelativeEncoder encoderLeftRear = leftRear.getEncoder(SparkRelativeEncoder.Type.kHallSensor, 42);
   private final RelativeEncoder encoderRightRear = rightRear.getEncoder(SparkRelativeEncoder.Type.kHallSensor, 42);
 
+  private final Encoder driveEncoderLeft = new Encoder(0, 1, true);
+  private final Encoder driveEncoderRight = new Encoder(2, 3, true);
+
   private final AHRS gyro = new AHRS(SPI.Port.kMXP);
 
   private final PIDController m_leftPIDController = new PIDController(1, 0, 0);
@@ -61,8 +67,7 @@ public class Drivetrain extends SubsystemBase {
 
   private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(1, 2.16, 0.50);
 
-  private final DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(
-    gyro.getRotation2d(), encoderLeftFront.getPosition(), encoderRightFront.getPosition(), getPose());
+  private final DifferentialDriveOdometry odometry;
 
   private final DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(DriverConstants.trackWidth);
 
@@ -103,19 +108,39 @@ public class Drivetrain extends SubsystemBase {
     leftRear.follow(leftFront);
     rightRear.follow(rightFront);
 
+    rightFront.setInverted(false);
     leftFront.setInverted(true);
+    
 
-    encoderLeftFront.setPositionConversionFactor(DriverConstants.positionConversionFactor);
-    encoderLeftFront.setVelocityConversionFactor(DriverConstants.velocityConversionFactor);
+    leftFront.setSmartCurrentLimit(DriverConstants.currentLimit);
+    leftRear.setSmartCurrentLimit(DriverConstants.currentLimit);
+    rightFront.setSmartCurrentLimit(DriverConstants.currentLimit);
+    rightRear.setSmartCurrentLimit(DriverConstants.currentLimit);
+
+    leftFront.setIdleMode(IdleMode.kCoast);
+    leftRear.setIdleMode(IdleMode.kCoast);
+    rightFront.setIdleMode(IdleMode.kCoast);
+    rightRear.setIdleMode(IdleMode.kCoast);
+
+    encoderLeftFront.setPositionConversionFactor(-DriverConstants.positionConversionFactor);
+    encoderLeftFront.setVelocityConversionFactor(-DriverConstants.velocityConversionFactor);
 
     encoderRightFront.setPositionConversionFactor(DriverConstants.positionConversionFactor);
     encoderRightFront.setVelocityConversionFactor(DriverConstants.velocityConversionFactor);
 
-    encoderLeftRear.setPositionConversionFactor(DriverConstants.positionConversionFactor);
-    encoderLeftRear.setVelocityConversionFactor(DriverConstants.velocityConversionFactor);
+    encoderLeftRear.setPositionConversionFactor(-DriverConstants.positionConversionFactor);
+    encoderLeftRear.setVelocityConversionFactor(-DriverConstants.velocityConversionFactor);
 
     encoderRightRear.setPositionConversionFactor(DriverConstants.positionConversionFactor);
     encoderRightRear.setVelocityConversionFactor(DriverConstants.velocityConversionFactor);
+
+    driveEncoderLeft.setDistancePerPulse(DriverConstants.distancePerPulse);
+    driveEncoderRight.setDistancePerPulse(DriverConstants.distancePerPulse);
+
+    driveEncoderLeft.setReverseDirection(true);
+
+    odometry = new DifferentialDriveOdometry(
+    gyro.getRotation2d(), encoderLeftFront.getPosition(), encoderRightFront.getPosition());
 
     AutoBuilder.configureRamsete(
             this::getPose,
@@ -149,6 +174,8 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("Encoder Right FRONT Position", encoderRightFront.getPosition());
     SmartDashboard.putNumber("Encoder Left REAR Position", encoderLeftRear.getPosition());
     SmartDashboard.putNumber("Encoder Right REAR Position", encoderRightRear.getPosition());
+    SmartDashboard.putNumber("DRIVE Encoder Left Position", driveEncoderLeft.getDistance());
+    SmartDashboard.putNumber("DRIVE Encoder Right Position", encoderRightRear.getPosition());
     odometry.update(gyro.getRotation2d(), encoderLeftFront.getPosition(), encoderRightFront.getPosition());
   }
 
@@ -178,6 +205,7 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void driveChassis(ChassisSpeeds speed){
+    SmartDashboard.putString("Driving Chassis?", "Yes");
     setSpeeds(kinematics.toWheelSpeeds(speed));
   }
 

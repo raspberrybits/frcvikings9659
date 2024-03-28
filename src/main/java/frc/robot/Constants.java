@@ -8,12 +8,16 @@ public final class Constants {
     public static final int leftFrontId = 2;
     public static final int rightRearId = 4;
     public static final int rightFrontId = 3;
+    public static final int currentLimit = 45;
+    public static final int throughBoreCPR = 8192;
     public static final double trackWidth = 0.69;
     public static final double autoSpeed = 0.35;
     public static final double wheelDiameter = Units.inchesToMeters(6);
+    public static final double wheelCircumference = wheelDiameter * Math.PI;
     public static final double gearRatio = 8.46;
-    public static final double positionConversionFactor = (wheelDiameter*Math.PI) / gearRatio;
-    public static final double velocityConversionFactor = (wheelDiameter*Math.PI) / (gearRatio*60);
+    public static final double positionConversionFactor = wheelCircumference / gearRatio;
+    public static final double velocityConversionFactor = wheelCircumference / (gearRatio*60);
+    public static final double distancePerPulse = wheelCircumference / throughBoreCPR;
   }
 
   public static class OperatorConstants{
