@@ -58,14 +58,14 @@ public class Drivetrain extends SubsystemBase {
   private final RelativeEncoder encoderRightRear = rightRear.getEncoder(SparkRelativeEncoder.Type.kHallSensor, 42);
 
   private final Encoder driveEncoderLeft = new Encoder(0, 1, true);
-  private final Encoder driveEncoderRight = new Encoder(2, 3, true);
+  private final Encoder driveEncoderRight = new Encoder(2, 3, false);
 
   private final AHRS gyro = new AHRS(SPI.Port.kMXP);
 
-  private final PIDController m_leftPIDController = new PIDController(0.001, 0, 0);
-  private final PIDController m_rightPIDController = new PIDController(0.001, 0, 0);
-
-  private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(1, 2.16, 0.50);
+  private final PIDController m_leftPIDController = new PIDController(DriverConstants.kP, DriverConstants.kI, DriverConstants.kD);
+  private final PIDController m_rightPIDController = new PIDController(DriverConstants.kP, DriverConstants.kI, DriverConstants.kD);
+ 
+  private final SimpleMotorFeedforward m_feedforward = new SimpleMotorFeedforward(DriverConstants.kS, DriverConstants.kV, DriverConstants.kA);
 
   private final DifferentialDriveOdometry odometry;
 
@@ -80,8 +80,8 @@ public class Drivetrain extends SubsystemBase {
           new SysIdRoutine.Config(),
           new SysIdRoutine.Mechanism(
               (Measure<Voltage> volts) -> {
-                leftFront.setVoltage(volts.in(Volts));
-                rightFront.setVoltage(volts.in(Volts));
+                leftFront.set(volts.in(Volts));
+                rightFront.set(volts.in(Volts));
               },
               log -> {
                 log.motor("drive-left")
@@ -136,9 +136,7 @@ public class Drivetrain extends SubsystemBase {
 
     driveEncoderLeft.setDistancePerPulse(DriverConstants.distancePerPulse);
     driveEncoderRight.setDistancePerPulse(DriverConstants.distancePerPulse);
-
-    driveEncoderLeft.setReverseDirection(true);
-
+    
     odometry = new DifferentialDriveOdometry(
     gyro.getRotation2d(), encoderLeftFront.getPosition(), encoderRightFront.getPosition());
 
@@ -175,7 +173,7 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("Encoder Left REAR Position", encoderLeftRear.getPosition());
     SmartDashboard.putNumber("Encoder Right REAR Position", encoderRightRear.getPosition());
     SmartDashboard.putNumber("DRIVE Encoder Left Position", driveEncoderLeft.getDistance());
-    SmartDashboard.putNumber("DRIVE Encoder Right Position", encoderRightRear.getPosition());
+    SmartDashboard.putNumber("DRIVE Encoder Right Position", driveEncoderRight.getDistance());
     odometry.update(gyro.getRotation2d(), encoderLeftFront.getPosition(), encoderRightFront.getPosition());
   }
 
@@ -200,8 +198,8 @@ public class Drivetrain extends SubsystemBase {
         m_leftPIDController.calculate(encoderLeftFront.getVelocity(), speeds.leftMetersPerSecond);
     final double rightOutput =
         m_rightPIDController.calculate(encoderRightFront.getVelocity(), speeds.rightMetersPerSecond);
-    leftFront.setVoltage(leftOutput + leftFeedforward);
-    rightFront.setVoltage(rightOutput + rightFeedforward);
+    leftFront.set(leftOutput + leftFeedforward);
+    rightFront.set(rightOutput + rightFeedforward);
   }
 
   public void driveChassis(ChassisSpeeds speed){

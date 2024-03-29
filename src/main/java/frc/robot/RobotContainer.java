@@ -1,28 +1,29 @@
 package frc.robot;
 
-import frc.robot.Constants.HangConstants;
-import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.pointAndShoot;
-import frc.robot.commands.prime;
-import frc.robot.commands.ampShoot;
-import frc.robot.commands.floorIntake;
-import frc.robot.commands.floorReverse;
-import frc.robot.commands.hangRetract;
-import frc.robot.commands.topIntake;
-import frc.robot.commands.Autos.taxi;
-import frc.robot.commands.Autos.shootPreload;
-import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Hang;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Shooter;
-
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.HangConstants;
+import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.ampShoot;
+import frc.robot.commands.floorIntake;
+import frc.robot.commands.floorReverse;
+import frc.robot.commands.hangRetract;
+import frc.robot.commands.pointAndShoot;
+import frc.robot.commands.prime;
+import frc.robot.commands.topIntake;
+import frc.robot.commands.Autos.shootPreload;
+import frc.robot.commands.Autos.taxi;
+import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Hang;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
 
 public class RobotContainer {
     private final Drivetrain mDrivetrain = new Drivetrain();
@@ -37,10 +38,14 @@ public class RobotContainer {
     private final CommandXboxController mControls = new CommandXboxController(OperatorConstants.controlsPort);
 
     public RobotContainer() {
+        NamedCommands.registerCommand("prime", new prime(mShooter));
+        NamedCommands.registerCommand("pointAndShoot", new pointAndShoot(mShooter, mIntake));
+        NamedCommands.registerCommand("floorIntake", new floorIntake(mIntake));
+        NamedCommands.registerCommand("ampShoot", new ampShoot(mShooter, mIntake));
         configureBindings();
-        autoChooser = AutoBuilder.buildAutoChooser("Shoot Preload");
+        autoChooser = AutoBuilder.buildAutoChooser();
 
-        autoChooser.addOption("Shoot Preload", new shootPreload(mShooter, mIntake));
+        autoChooser.setDefaultOption("Shoot Preload", new shootPreload(mShooter, mIntake));
         autoChooser.addOption("Taxi", new taxi(mDrivetrain));
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -64,10 +69,11 @@ public class RobotContainer {
          */
 
         // Amp Shoot
+
         mControls
                 .b()
                 .whileTrue(
-                        new ampShoot(mShooter, mIntake).withTimeout(0.5));
+                new ampShoot(mShooter, mIntake).withTimeout(0.5));
 
         // Shooter Prime
         mControls
@@ -102,16 +108,50 @@ public class RobotContainer {
         // Hang Winch
         mControls
                 .povDown()
-                .and(mHang.canWinch())
+                //.and(mHang.canWinch())
                 .whileTrue(
                         new hangRetract(mHang, HangConstants.speed));
 
         // Hang Unwinch
         mControls
                 .povUp()
-                .and(mHang.canUnwinch())
+                //.and(mHang.canUnwinch())
                 .whileTrue(
                         new hangRetract(mHang, -HangConstants.speed));
+        
+        mControls
+        .a()
+        .and(mControls.rightBumper())
+        .whileTrue(mDrivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        mControls
+                .b()
+                .and(mControls.rightBumper())
+                .whileTrue(mDrivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        mControls
+                .x()
+                .and(mControls.rightBumper())
+                .whileTrue(mDrivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        mControls
+                .y()
+                .and(mControls.rightBumper())
+                .whileTrue(mDrivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+        mControls
+                .a()
+                .and(mControls.leftBumper())
+                .whileTrue(mDrivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        mControls
+                .b()
+                .and(mControls.leftBumper())
+                .whileTrue(mDrivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        mControls
+                .x()
+                .and(mControls.leftBumper())
+                .whileTrue(mDrivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        mControls
+                .y()
+                .and(mControls.leftBumper())
+                .whileTrue(mDrivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     }
 
     public Command getAutonomousCommand() {
