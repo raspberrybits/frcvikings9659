@@ -9,7 +9,7 @@ public final class Constants {
     public static final int rightRearId = 4;
     public static final int rightFrontId = 3;
     public static final int currentLimit = 45;
-    public static final int throughBoreCPR = 8192;
+    public static final int throughBoreCPR = 2048;
     public static final double trackWidth = 0.05;
     public static final double autoSpeed = 0.35;
     public static final double wheelDiameter = Units.inchesToMeters(6);
@@ -53,7 +53,7 @@ public final class Constants {
   public static class HangConstants{
     public static final int hangId = 10;
     public static final double speed = 1;
-    public static final double winchDistance = 301;
+    public static final double winchDistance = 530;
     public static final double unwinchDistance = 0;
   }
 }
