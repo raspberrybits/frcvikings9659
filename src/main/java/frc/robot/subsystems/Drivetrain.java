@@ -11,7 +11,6 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkRelativeEncoder;
 import com.revrobotics.CANSparkBase.IdleMode;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -88,16 +87,16 @@ public class Drivetrain extends SubsystemBase {
                     .voltage(
                         m_appliedVoltage.mut_replace(
                             leftFront.get() * RobotController.getBatteryVoltage(), Volts))
-                    .linearPosition(m_distance.mut_replace(encoderLeftFront.getPosition(), Meters))
+                    .linearPosition(m_distance.mut_replace(driveEncoderLeft.getDistance(), Meters))
                     .linearVelocity(
-                        m_velocity.mut_replace(encoderLeftFront.getVelocity(), MetersPerSecond));
+                        m_velocity.mut_replace(driveEncoderLeft.getRate(), MetersPerSecond));
                 log.motor("drive-right")
                     .voltage(
                         m_appliedVoltage.mut_replace(
                             rightFront.get() * RobotController.getBatteryVoltage(), Volts))
-                    .linearPosition(m_distance.mut_replace(encoderRightFront.getPosition(), Meters))
+                    .linearPosition(m_distance.mut_replace(driveEncoderRight.getDistance(), Meters))
                     .linearVelocity(
-                        m_velocity.mut_replace(encoderRightFront.getVelocity(), MetersPerSecond));
+                        m_velocity.mut_replace(driveEncoderRight.getRate(), MetersPerSecond));
               },
               this));
 
@@ -138,7 +137,7 @@ public class Drivetrain extends SubsystemBase {
     driveEncoderRight.setDistancePerPulse(DriverConstants.distancePerPulse);
     
     odometry = new DifferentialDriveOdometry(
-    gyro.getRotation2d(), encoderLeftFront.getPosition(), encoderRightFront.getPosition());
+    gyro.getRotation2d(), driveEncoderLeft.getDistance(), encoderRightFront.getPosition());
 
     AutoBuilder.configureRamsete(
             this::getPose,
@@ -174,20 +173,25 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("Encoder Right REAR Position", encoderRightRear.getPosition());
     SmartDashboard.putNumber("DRIVE Encoder Left Position", driveEncoderLeft.getDistance());
     SmartDashboard.putNumber("DRIVE Encoder Right Position", driveEncoderRight.getDistance());
-    odometry.update(gyro.getRotation2d(), encoderLeftFront.getPosition(), encoderRightFront.getPosition());
+    odometry.update(gyro.getRotation2d(), driveEncoderLeft.getDistance(), driveEncoderRight.getDistance());
   }
 
   public ChassisSpeeds getChassiSpeeds() {
-    return new ChassisSpeeds(encoderLeftFront.getVelocity(), encoderRightFront.getVelocity(), gyro.getAngle());
+    return new ChassisSpeeds(driveEncoderLeft.getRate(), driveEncoderRight.getRate(), gyro.getAngle());
   }
 
-  public Pose2d getPose(){
+  public void resetEncoders() {
+    driveEncoderLeft.reset();
+    driveEncoderRight.reset();
+  }
+
+  public Pose2d getPose() {
     return odometry.getPoseMeters();
   }
 
   public void resetPose(Pose2d pose) {
     odometry.resetPosition(
-        gyro.getRotation2d(), encoderLeftFront.getPosition(), encoderRightFront.getPosition(), pose);
+        gyro.getRotation2d(), driveEncoderLeft.getDistance(), driveEncoderRight.getDistance(), pose);
   }
 
   public void setSpeeds(DifferentialDriveWheelSpeeds speeds) {
@@ -195,9 +199,9 @@ public class Drivetrain extends SubsystemBase {
     final double rightFeedforward = m_feedforward.calculate(speeds.rightMetersPerSecond);
 
     final double leftOutput =
-        m_leftPIDController.calculate(encoderLeftFront.getVelocity(), speeds.leftMetersPerSecond);
+        m_leftPIDController.calculate(driveEncoderLeft.getRate(), speeds.leftMetersPerSecond);
     final double rightOutput =
-        m_rightPIDController.calculate(encoderRightFront.getVelocity(), speeds.rightMetersPerSecond);
+        m_rightPIDController.calculate(driveEncoderRight.getRate(), speeds.rightMetersPerSecond);
     leftFront.set(leftOutput + leftFeedforward);
     rightFront.set(rightOutput + rightFeedforward);
   }
@@ -207,14 +211,8 @@ public class Drivetrain extends SubsystemBase {
     setSpeeds(kinematics.toWheelSpeeds(speed));
   }
 
-
-  public void resetEncoders() {
-    encoderLeftFront.setPosition(0);
-    encoderRightFront.setPosition(0);
-  }
-
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-    return new DifferentialDriveWheelSpeeds(encoderLeftFront.getVelocity(), encoderRightFront.getVelocity());
+    return new DifferentialDriveWheelSpeeds(driveEncoderLeft.getRate(), driveEncoderRight.getRate());
   }
 
   
@@ -222,12 +220,12 @@ public class Drivetrain extends SubsystemBase {
     drivetrain.setMaxOutput(maxOutput);
   }
 
-  public RelativeEncoder getLeftEncoder() {
-    return encoderLeftFront;
+  public Encoder getLeftEncoder() {
+    return driveEncoderLeft;
   }
 
-  public RelativeEncoder getRightEncoder() {
-    return encoderRightFront;
+  public Encoder getRightEncoder() {
+    return driveEncoderRight;
   }
 
   public double getHeading() {
