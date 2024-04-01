@@ -79,21 +79,21 @@ public class Drivetrain extends SubsystemBase {
           new SysIdRoutine.Config(),
           new SysIdRoutine.Mechanism(
               (Measure<Voltage> volts) -> {
-                leftFront.setVoltage(volts.in(Volts));
-                rightFront.setVoltage(volts.in(Volts));
+                leftFront.set(volts.in(Volts));
+                rightFront.set(volts.in(Volts));
               },
               log -> {
                 log.motor("drive-left")
                     .voltage(
                         m_appliedVoltage.mut_replace(
-                            leftFront.getAppliedOutput() * leftFront.getBusVoltage() * RobotController.getBatteryVoltage(), Volts))
+                            leftFront.getAppliedOutput() * leftFront.getBusVoltage(), Volts))
                     .linearPosition(m_distance.mut_replace(driveEncoderLeft.getDistance(), Meters))
                     .linearVelocity(
                         m_velocity.mut_replace(driveEncoderLeft.getRate(), MetersPerSecond));
                 log.motor("drive-right")
                     .voltage(
                         m_appliedVoltage.mut_replace(
-                            rightFront.getAppliedOutput() * rightFront.getBusVoltage() * RobotController.getBatteryVoltage(), Volts))
+                            rightFront.getAppliedOutput() * rightFront.getBusVoltage(), Volts))
                     .linearPosition(m_distance.mut_replace(driveEncoderRight.getDistance(), Meters))
                     .linearVelocity(
                         m_velocity.mut_replace(driveEncoderRight.getRate(), MetersPerSecond));
@@ -202,8 +202,8 @@ public class Drivetrain extends SubsystemBase {
         m_leftPIDController.calculate(driveEncoderLeft.getRate(), speeds.leftMetersPerSecond);
     final double rightOutput =
         m_rightPIDController.calculate(driveEncoderRight.getRate(), speeds.rightMetersPerSecond);
-    leftFront.setVoltage(leftOutput + leftFeedforward);
-    rightFront.setVoltage(rightOutput + rightFeedforward);
+    leftFront.set(leftOutput + leftFeedforward);
+    rightFront.set(rightOutput + rightFeedforward);
   }
 
   public void driveChassis(ChassisSpeeds speed){
