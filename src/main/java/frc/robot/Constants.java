@@ -18,7 +18,8 @@ public final class Constants {
     public static final double positionConversionFactor = wheelCircumference / gearRatio;
     public static final double velocityConversionFactor = wheelCircumference / (gearRatio*60);
     public static final double distancePerPulse = wheelCircumference / throughBoreCPR;
-    public static final double kP = 0;
+    public static final double kPL = 0;
+    public static final double kPR = 0;
     public static final double kI = 0;
     public static final double kD = 0;
     public static final double kS = 0;
