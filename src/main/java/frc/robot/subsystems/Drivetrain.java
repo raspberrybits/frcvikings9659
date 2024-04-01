@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.DriverConstants;
 
 import static edu.wpi.first.units.MutableMeasure.mutable;
@@ -79,8 +80,8 @@ public class Drivetrain extends SubsystemBase {
           new SysIdRoutine.Config(),
           new SysIdRoutine.Mechanism(
               (Measure<Voltage> volts) -> {
-                leftFront.set(volts.in(Volts));
-                rightFront.set(volts.in(Volts));
+                leftFront.set(volts.in(Volts)/RobotController.getBatteryVoltage());
+                rightFront.set(volts.in(Volts)/RobotController.getBatteryVoltage());
               },
               log -> {
                 log.motor("drive-left")
@@ -202,8 +203,8 @@ public class Drivetrain extends SubsystemBase {
         m_leftPIDController.calculate(driveEncoderLeft.getRate(), speeds.leftMetersPerSecond);
     final double rightOutput =
         m_rightPIDController.calculate(driveEncoderRight.getRate(), speeds.rightMetersPerSecond);
-    leftFront.set(leftOutput + leftFeedforward);
-    rightFront.set(rightOutput + rightFeedforward);
+    leftFront.set(leftOutput + leftFeedforward/RobotController.getBatteryVoltage());
+    rightFront.set(rightOutput + rightFeedforward/RobotController.getBatteryVoltage());
   }
 
   public void driveChassis(ChassisSpeeds speed){
