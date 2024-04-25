@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.35,
-        "y": 5.550936522700434
+        "x": 0.7516461186733918,
+        "y": 6.628333484912334
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.35,
-        "y": 5.550936522700434
+        "x": 1.1583827617491917,
+        "y": 7.541878942554934
       },
       "isLocked": false,
-      "linkedName": "Center Speaker"
+      "linkedName": "Speaker Top"
     },
     {
       "anchor": {
-        "x": 4.35,
-        "y": 5.55
+        "x": 8.270256540513081,
+        "y": 7.469275707782185
       },
       "prevControl": {
-        "x": 3.3499999999999996,
-        "y": 5.55
+        "x": 8.299857368945508,
+        "y": 7.4715277917332985
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,7 +42,7 @@
     "rotation": 0,
     "rotateFast": false
   },
-  "reversed": false,
+  "reversed": true,
   "folder": null,
   "previewStartingState": {
     "rotation": 0,

@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.HangConstants;
@@ -34,7 +33,7 @@ public class RobotContainer {
 
     private final SendableChooser<Command> autoChooser;
 
-    private final CommandPS4Controller mDriver = new CommandPS4Controller(OperatorConstants.driverPort);
+    private final CommandXboxController mDriver = new CommandXboxController(OperatorConstants.driverPort);
     private final CommandXboxController mControls = new CommandXboxController(OperatorConstants.controlsPort);
 
     public RobotContainer() {
@@ -53,21 +52,21 @@ public class RobotContainer {
 
     private void configureBindings() {
         // Tank Drive (single controller)
-        /*FOR DUAL CONTROLLER SETUP COMMENT THIS BLOCK AND UNCOMMENT THE NEXT BLOCK
-        mDrivetrain.setDefaultCommand(
+        //FOR DUAL CONTROLLER SETUP COMMENT THIS BLOCK AND UNCOMMENT THE NEXT BLOCK
+        /*mDrivetrain.setDefaultCommand(
                 new RunCommand(
                         () -> mDrivetrain.drive(mControls.getLeftY(), mControls.getRightY()),
                         mDrivetrain));*/
 
         /* FOR DUAL CONTROLLER SETUP UNCOMMENT THIS BLOCK*/
-        //Tank Drive (2 controllers)
+        //Tank Drive (2 controllers)            
          mDrivetrain.setDefaultCommand(new RunCommand(
                 () -> mDrivetrain.drive(mDriver.getLeftY(), mDriver.getRightY()),
                 mDrivetrain));
 
         // Amp Shoot
-
         mControls
+
                 .b()
                 .whileTrue(
                 new ampShoot(mShooter, mIntake).withTimeout(0.5));
@@ -104,22 +103,13 @@ public class RobotContainer {
 
         // Hang Winch
         mControls
-                .povDown()
-                .and(mHang.canWinch())
+                .a()
                 .whileTrue(
                         new hangRetract(mHang, HangConstants.speed));
 
         // Hang Unwinch
         mControls
-                .povUp()
-                .and(mHang.canUnwinch())
-                .whileTrue(
-                        new hangRetract(mHang, -HangConstants.speed));
-        
-        // Hang Unwinch (limit override)
-        mControls
-                .povUp()
-                .and(mControls.leftBumper())
+                .y()
                 .whileTrue(
                         new hangRetract(mHang, -HangConstants.speed));
         
@@ -159,6 +149,9 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
+        mDrivetrain.resetEncoders();
+        mDrivetrain.resetGyro();
         return autoChooser.getSelected();
     }
 }
+

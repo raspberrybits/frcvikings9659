@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.ctre.phoenix.motorcontrol.VictorSPXControlMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
@@ -18,6 +19,8 @@ public class Shooter extends SubsystemBase {
     }
 
     public void setShooterFeed(double speed){
+        shooterPrimeLeft.setIdleMode(IdleMode.kBrake);
+        shooterPrimeRight.setIdleMode(IdleMode.kBrake);
         shooterTopFeed.set(VictorSPXControlMode.PercentOutput, speed);
     }
 

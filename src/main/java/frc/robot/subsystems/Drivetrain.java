@@ -31,7 +31,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.RobotContainer;
 import frc.robot.Constants.DriverConstants;
 
 import static edu.wpi.first.units.MutableMeasure.mutable;
@@ -84,8 +83,7 @@ public class Drivetrain extends SubsystemBase {
                 rightFront.set(volts.in(Volts)/RobotController.getBatteryVoltage());
               },
               log -> {
-                log.motor("drive-left")
-                    .voltage(
+                log.motor("drive-left")                    .voltage(
                         m_appliedVoltage.mut_replace(
                             leftFront.getAppliedOutput() * leftFront.getBusVoltage(), Volts))
                     .linearPosition(m_distance.mut_replace(driveEncoderLeft.getDistance(), Meters))
@@ -101,19 +99,19 @@ public class Drivetrain extends SubsystemBase {
               },
               this));
 
-
   public Drivetrain() {
     resetEncoders();
     gyro.reset();
+    
     leftRear.follow(leftFront);
     rightRear.follow(rightFront);
 
-    rightFront.setInverted(false);
     leftFront.setInverted(true);
+    rightFront.setInverted(false);
     
 
-    leftFront.setSmartCurrentLimit(DriverConstants.currentLimit);
-    leftRear.setSmartCurrentLimit(DriverConstants.currentLimit);
+    //leftFront.setSmartCurrentLimit(DriverConstants.currentLimit);
+    //leftRear.setSmartCurrentLimit(DriverConstants.currentLimit);
     rightFront.setSmartCurrentLimit(DriverConstants.currentLimit);
     rightRear.setSmartCurrentLimit(DriverConstants.currentLimit);
 
@@ -138,7 +136,7 @@ public class Drivetrain extends SubsystemBase {
     driveEncoderRight.setDistancePerPulse(DriverConstants.distancePerPulse);
     
     odometry = new DifferentialDriveOdometry(
-    gyro.getRotation2d(), driveEncoderLeft.getDistance(), encoderRightFront.getPosition());
+    gyro.getRotation2d(), driveEncoderLeft.getDistance(), driveEncoderRight.getDistance());
 
     AutoBuilder.configureRamsete(
             this::getPose,
@@ -155,7 +153,7 @@ public class Drivetrain extends SubsystemBase {
             },
             this 
     );
-  }
+  } 
 
   public void drive(double left, double right){
     drivetrain.tankDrive(left, right, true);
@@ -172,10 +170,12 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("Encoder Right FRONT Position", encoderRightFront.getPosition());
     SmartDashboard.putNumber("Encoder Left REAR Position", encoderLeftRear.getPosition());
     SmartDashboard.putNumber("Encoder Right REAR Position", encoderRightRear.getPosition());
-    SmartDashboard.putNumber("DRIVE Encoder Left Position", driveEncoderLeft.getDistance());
-    SmartDashboard.putNumber("DRIVE Encoder Right Position", driveEncoderRight.getDistance());
+    SmartDashboard.putNumber("DRIVE Encoder Left VELOCITY", driveEncoderLeft.getRate());
+    SmartDashboard.putNumber("DRIVE Encoder Right VELOCITY", driveEncoderRight.getRate());
+    SmartDashboard.putNumber("Gyro", gyro.getAngle());
     odometry.update(gyro.getRotation2d(), driveEncoderLeft.getDistance(), driveEncoderRight.getDistance());
   }
+
 
   public ChassisSpeeds getChassiSpeeds() {
     return new ChassisSpeeds(driveEncoderLeft.getRate(), driveEncoderRight.getRate(), gyro.getAngle());
@@ -190,7 +190,13 @@ public class Drivetrain extends SubsystemBase {
     return odometry.getPoseMeters();
   }
 
+  public void resetGyro() {
+    gyro.reset();
+  }
+ 
   public void resetPose(Pose2d pose) {
+    gyro.reset();
+    gyro.setAngleAdjustment(pose.getRotation().getDegrees());
     odometry.resetPosition(
         gyro.getRotation2d(), driveEncoderLeft.getDistance(), driveEncoderRight.getDistance(), pose);
   }
@@ -208,7 +214,6 @@ public class Drivetrain extends SubsystemBase {
   }
 
   public void driveChassis(ChassisSpeeds speed){
-    SmartDashboard.putString("Driving Chassis?", "Yes");
     setSpeeds(kinematics.toWheelSpeeds(speed));
   }
 
@@ -247,4 +252,5 @@ public class Drivetrain extends SubsystemBase {
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     return m_sysIdRoutine.dynamic(direction);
   }
+
 }

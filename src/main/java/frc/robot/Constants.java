@@ -10,7 +10,7 @@ public final class Constants {
     public static final int rightFrontId = 3;
     public static final int currentLimit = 45;
     public static final int throughBoreCPR = 2048;
-    public static final double trackWidth = 0.05;
+    public static final double trackWidth = 0.69;
     public static final double autoSpeed = 0.35;
     public static final double wheelDiameter = Units.inchesToMeters(6);
     public static final double wheelCircumference = wheelDiameter * Math.PI;
@@ -18,13 +18,13 @@ public final class Constants {
     public static final double positionConversionFactor = wheelCircumference / gearRatio;
     public static final double velocityConversionFactor = wheelCircumference / (gearRatio*60);
     public static final double distancePerPulse = wheelCircumference / throughBoreCPR;
-    public static final double kPL = 0;
-    public static final double kPR = 0;
+    public static final double kPL = 0.0001;
+    public static final double kPR = 0.0001;
     public static final double kI = 0;
     public static final double kD = 0;
     public static final double kS = 0;
-    public static final double kV = 0;
-    public static final double kA = 0;
+    public static final double kV = 2.30;
+    public static final double kA = 0.49;
   }
 
   public static class OperatorConstants{
@@ -54,7 +54,7 @@ public final class Constants {
   public static class HangConstants{
     public static final int hangId = 10;
     public static final double speed = 1;
-    public static final double winchDistance = 530;
+    public static final double winchDistance = 450;
     public static final double unwinchDistance = 0;
   }
 }
