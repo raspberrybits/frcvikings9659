@@ -110,8 +110,8 @@ public class Drivetrain extends SubsystemBase {
     rightFront.setInverted(false);
     
 
-    //leftFront.setSmartCurrentLimit(DriverConstants.currentLimit);
-    //leftRear.setSmartCurrentLimit(DriverConstants.currentLimit);
+    leftFront.setSmartCurrentLimit(DriverConstants.currentLimit);
+    leftRear.setSmartCurrentLimit(DriverConstants.currentLimit);
     rightFront.setSmartCurrentLimit(DriverConstants.currentLimit);
     rightRear.setSmartCurrentLimit(DriverConstants.currentLimit);
 
